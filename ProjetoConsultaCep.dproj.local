@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2024/03/23 16:50:00.000.078,=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2024/03/23 16:50:40.000.928,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UPrincipal.pas</Transaction>
+    <Transaction>2024/03/23 16:50:40.000.928,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UPrincipal.dfm</Transaction>
+    <Transaction>2024/03/23 16:50:58.000.455,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\ProejtoConsultaCep.dproj</Transaction>
+    <Transaction>2024/03/23 16:58:46.000.699,=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2024/03/23 16:59:44.000.973,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UDm.pas</Transaction>
+    <Transaction>2024/03/23 16:59:44.000.973,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UDm.dfm</Transaction>
+    <Transaction>2024/03/23 17:04:31.000.378,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\ProejtoConsultaCep.dproj=J:\Projetos\ProjetoAvaliacaoSoftplan\ProejtoConsultaCep.dproj</Transaction>
+    <Transaction>2024/03/23 17:04:44.000.934,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UDm.dfm=J:\Projetos\ProjetoAvaliacaoSoftplan\UDm.dfm</Transaction>
+    <Transaction>2024/03/23 17:04:44.000.934,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UDm.pas=J:\Projetos\ProjetoAvaliacaoSoftplan\UDm.pas</Transaction>
+    <Transaction>2024/03/23 17:04:56.000.343,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UPrincipal.dfm=J:\Projetos\ProjetoAvaliacaoSoftplan\UPrincipal.dfm</Transaction>
+    <Transaction>2024/03/23 17:04:56.000.343,C:\Users\Renan Vicente\Documents\Embarcadero\Studio\Projects\UPrincipal.pas=J:\Projetos\ProjetoAvaliacaoSoftplan\UPrincipal.pas</Transaction>
+    <Transaction>2024/03/23 17:24:28.000.796,=J:\Projetos\ProjetoAvaliacaoSoftplan\Unit1.pas</Transaction>
+    <Transaction>2024/03/23 17:25:43.000.277,J:\Projetos\ProjetoAvaliacaoSoftplan\Unit1.pas=J:\Projetos\ProjetoAvaliacaoSoftplan\UConsultaCEP.pas</Transaction>
+    <Transaction>2024/03/23 18:08:20.000.164,J:\Projetos\ProjetoAvaliacaoSoftplan\ProejtoConsultaCep.dproj=J:\Projetos\ProjetoAvaliacaoSoftplan\ProjetoConsultaCep.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
