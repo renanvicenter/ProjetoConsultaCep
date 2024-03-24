@@ -67,6 +67,7 @@ procedure TFormPrincipal.BitBtnConsultarClick(Sender: TObject);
 var
   WsConsultaCEP : TConsultaCEP;
   Localidade, Logradouro : String;
+  BConsultaViaCep, BEncontrouCep : Boolean;
 begin
   try
 
@@ -102,8 +103,20 @@ begin
         DBEditLogradouroPesquisa.SetFocus;
         exit;
       end;
-    end;
 
+      if Length(DM.CDSPesquisaLOCALIDADE.AsString) < 3 then
+      begin
+        MessageBox(0, 'Informe pelo menos 3 caracteres na Localidade/Cidade para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+        DBEditLocalidadePesquisa.SetFocus;
+        exit;
+      end;
+      if Length(DM.CDSPesquisaLOGRADOURO.AsString) < 3 then
+      begin
+        MessageBox(0, 'Informe pelo menos 3 caracteres no Logradouro para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+        DBEditLogradouroPesquisa.SetFocus;
+        exit;
+      end;
+    end;
 
     DM.FDQueryCep.Close;
     DM.FDQueryCep.SQL.Clear;
@@ -120,20 +133,38 @@ begin
     end;
     DM.FDQueryCep.Open;
     // verifica se a consulta retornou algum registro
-    if DM.FDQueryCep.IsEmpty then
+    BConsultaViaCep := DM.FDQueryCep.IsEmpty;
+    if not DM.FDQueryCep.IsEmpty then
+    begin
+      BConsultaViaCep := (MessageBox(0, 'Foram encontrados dados deste endereço na base local. '+
+        #13+#10+'Deseja efetuar uma nova consulta atualizando as informações do Endereço existente?',
+        'Confirmação', MB_ICONQUESTION or MB_YESNO or MB_APPLMODAL) = idYes);
+    end;
+
+    // Se variavel True entao executa a consulta no ws ViaCep e atualiza base local
+    if BConsultaViaCep then
     begin
       if PageControl.ActivePage = TabSheetConsultaCep then
       begin
         MemoRetornoConsultaViaCEP.Text := WsConsultaCEP.ConsultarCEP(DM.CDSPesquisaCEP.AsString,
-         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex) );
-        // inseri cep na base
-        DM.FDQueryCep.Insert;
-        DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
-        case RadioGroupFormatoConsulta.ItemIndex of
-          0: DM.JSONToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
-          1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCep );
+        if BEncontrouCep then
+        begin
+          // inseri cep na base
+          DM.FDQueryCep.Insert;
+          DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
+          case RadioGroupFormatoConsulta.ItemIndex of
+            0: DM.JSONToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+            1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+          end;
+          DM.FDQueryCep.Post;
+        end
+        else
+        begin
+          MessageBox(0, 'Não foram encontrados dados referente ao CEP informado.'+#13+#10+'Verifique e tente novamente.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+          DBEditCEPPesquisa.SetFocus;
+          exit;
         end;
-        DM.FDQueryCep.Post;
       end
       else
       begin
@@ -144,18 +175,22 @@ begin
          DM.CDSPesquisaUF.AsString,
          Localidade,
          Logradouro,
-         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex) );
+         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCep );
 
-        case RadioGroupFormatoConsulta.ItemIndex of
-          0: DM.JSONArrayToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
-          1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+        if BEncontrouCep then
+        begin
+          case RadioGroupFormatoConsulta.ItemIndex of
+            0: DM.JSONArrayToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+            1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+          end;
+        end
+        else
+        begin
+          MessageBox(0, 'Não foram encontrados dados referente ao Endereço informado.'+#13+#10+'Verifique e tente novamente.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+          DBComboBoxUF.SetFocus;
+          exit;
         end;
-
       end;
-
-
-
-
     end;
 
   finally

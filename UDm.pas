@@ -44,6 +44,7 @@ type
     procedure JSONToFDQuery(JSON: string; DataSet: TFDQuery);
     procedure JSONArrayToFDQuery(JSON: string; DataSet: TFDQuery);
     procedure XMLToFDQuery(XML: string; DataSet: TFDQuery);
+    procedure XMLArrayToFDQuery(XML: string; DataSet: TFDQuery);
 
     function BuscarSeqCodigoCep: Integer;
     function RetiraCaracterEspecial(const Value: string): string;
@@ -164,50 +165,46 @@ var
 begin
   // Criar um novo array JSON a partir da string JSON
   JSONArray := TJSONObject.ParseJSONValue(JSON) as TJSONArray;
-  try
-    // Iterar sobre os elementos do array JSON
-    for I := 0 to JSONArray.Count - 1 do
-    begin
-      // inseri cep na base
-      DM.FDQueryCep.Insert;
-      DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
+  // Iterar sobre os elementos do array JSON
+  for I := 0 to JSONArray.Count - 1 do
+  begin
+    // inseri cep na base
+    DM.FDQueryCep.Insert;
+    DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
 
-      JSONObject := JSONArray.Items[I] as TJSONObject;
-      try
-        // Iterar sobre os pares de chave/valor no objeto JSON
-        for JSONPair in JSONObject do
-        begin
-          try
-            // Obter o nome e o valor do campo
-            FieldName := JSONPair.JsonString.Value;
-            JSONValue := JSONPair.JsonValue;
-            // Adicionar um campo ao FDQuery
-            if FindInArray(FieldName, ArrayCampos) then
+    JSONObject := JSONArray.Items[I] as TJSONObject;
+    try
+      // Iterar sobre os pares de chave/valor no objeto JSON
+      for JSONPair in JSONObject do
+      begin
+        try
+          // Obter o nome e o valor do campo
+          FieldName := JSONPair.JsonString.Value;
+          JSONValue := JSONPair.JsonValue;
+          // Adicionar um campo ao FDQuery
+          if FindInArray(FieldName, ArrayCampos) then
+          begin
+            // Se o campo existir no FDQuery, atribua o valor correspondente
+            if DataSet.FindField(FieldName) <> nil then
             begin
-              // Se o campo existir no FDQuery, atribua o valor correspondente
-              if DataSet.FindField(FieldName) <> nil then
-              begin
-                DataSet.FieldByName(FieldName).AsString := JSONValue.Value;
-              end;
+              DataSet.FieldByName(FieldName).AsString := JSONValue.Value;
             end;
-          except
-            on E: Exception do
+          end;
+        except
+          on E: Exception do
+          begin
+            if (not (ContainsText(E.Message, ': Field ')) and
+              (not (ContainsText(E.Message, 'not found')))) then
             begin
-              if (not (ContainsText(E.Message, ': Field ')) and
-                (not (ContainsText(E.Message, 'not found')))) then
-              begin
-                ShowMessage(E.Message);
-              end;
+              ShowMessage(E.Message);
             end;
           end;
         end;
-      finally
-        JSONObject.Free;
       end;
-      DM.FDQueryCep.Post;
+    finally
+      JSONObject.Free;
     end;
-  finally
-    JSONArray.Free;
+    DM.FDQueryCep.Post;
   end;
 end;
 
@@ -258,6 +255,59 @@ begin
     end;
   finally
     XMLDocument.Free;
+  end;
+end;
+
+procedure TDM.XMLArrayToFDQuery(XML: string; DataSet: TFDQuery);
+var
+  XMLDocument: IXMLDocument;
+  RootNode, EnderecosNode, EnderecoNode: IXMLNode;
+  AttributeNode: IXMLNode;
+  i: Integer;
+begin
+  // Criar um novo documento XML a partir da string XML
+  XMLDocument := TXMLDocument.Create(nil);
+  try
+    XMLDocument.LoadFromXML(XML);
+
+    // Obter o nó raiz do documento XML
+    RootNode := XMLDocument.DocumentElement;
+
+    // Localizar o nó "enderecos"
+    EnderecosNode := RootNode.ChildNodes.FindNode('enderecos');
+    if Assigned(EnderecosNode) then
+    begin
+      // Iterar sobre os nós "endereco" dentro de "enderecos"
+      EnderecoNode := EnderecosNode.ChildNodes.First;
+      while Assigned(EnderecoNode) do
+      begin
+        // inseri cep na base
+        DM.FDQueryCep.Insert;
+        DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
+
+        // Adicionar campos ao FDQuery para cada nó filho do nó "endereco"
+        for i := 0 to EnderecoNode.ChildNodes.Count - 1 do
+        begin
+          AttributeNode := EnderecoNode.ChildNodes[i];
+          try
+            // Adicionar um campo ao FDQuery
+            if FindInArray(AttributeNode.NodeName, ArrayCampos) then
+              DataSet.FieldByName(AttributeNode.NodeName).AsString := AttributeNode.Text;
+          except
+            on e: Exception do
+              if (not (ContainsText(e.Message, ': Field ')) and
+                (not (ContainsText(e.Message, 'not found')))) then
+                ShowMessage(e.Message);
+          end;
+        end;
+
+        // Avançar para o próximo nó "endereco"
+        EnderecoNode := EnderecoNode.NextSibling;
+        DM.FDQueryCep.Post;
+      end;
+    end;
+  finally
+    XMLDocument := nil;
   end;
 end;
 
