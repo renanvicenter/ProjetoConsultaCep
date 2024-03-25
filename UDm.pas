@@ -95,6 +95,12 @@ end;
 
 function TDM.BuscarEndereco(TipoConsulta : TTipoConsulta): Boolean;
 begin
+  if not FDConnection.Connected then
+  begin
+    result := False;
+    exit;
+  end;
+
   FDQueryCep.Close;
   FDQueryCep.SQL.Clear;
   FDQueryCep.SQL.Add('SELECT * ');
@@ -190,6 +196,9 @@ var
   I: Integer;
   FieldName: string;
 begin
+  if not DM.FDConnection.Connected then
+    exit;
+
   // Criar um novo array JSON a partir da string JSON
   JSONArray := TJSONObject.ParseJSONValue(JSON) as TJSONArray;
   // Iterar sobre os elementos do array JSON
@@ -279,6 +288,8 @@ var
   AttributeNode: IXMLNode;
   i: Integer;
 begin
+  if not DM.FDConnection.Connected then
+    exit;
   // Criar um novo documento XML a partir da string XML
   XMLDocument := TXMLDocument.Create(nil);
   try

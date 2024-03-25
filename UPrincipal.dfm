@@ -25,8 +25,6 @@ object FormPrincipal: TFormPrincipal
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = -2
-    ExplicitTop = -6
     object PageControl: TPageControl
       Left = 0
       Top = 0
@@ -38,9 +36,6 @@ object FormPrincipal: TFormPrincipal
       TabOrder = 0
       object TabSheetConsultaCep: TTabSheet
         Caption = 'Consulta por CEP'
-        ExplicitTop = 24
-        ExplicitWidth = 281
-        ExplicitHeight = 165
         object LabelCEP: TLabel
           Left = 15
           Top = 11
@@ -67,9 +62,6 @@ object FormPrincipal: TFormPrincipal
       object TabSheetConsultaPorEndereco: TTabSheet
         Caption = 'Consulta por Endere'#231'o'
         ImageIndex = 1
-        ExplicitTop = 24
-        ExplicitWidth = 281
-        ExplicitHeight = 165
         object Label1: TLabel
           Left = 15
           Top = 11
@@ -179,7 +171,6 @@ object FormPrincipal: TFormPrincipal
         'JSON'
         'XML')
       TabOrder = 1
-      ExplicitLeft = 529
     end
     object BitBtnConsultar: TBitBtn
       Left = 716
@@ -208,8 +199,6 @@ object FormPrincipal: TFormPrincipal
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 727
-    ExplicitHeight = 356
     object GroupBoxResultadoConsulta: TGroupBox
       Left = 0
       Top = 0
@@ -218,8 +207,6 @@ object FormPrincipal: TFormPrincipal
       Align = alClient
       Caption = 'Resultado Consulta CEP'
       TabOrder = 0
-      ExplicitWidth = 700
-      ExplicitHeight = 447
       object Panel1: TPanel
         Left = 2
         Top = 15
@@ -228,10 +215,6 @@ object FormPrincipal: TFormPrincipal
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 352
-        ExplicitTop = 192
-        ExplicitWidth = 185
-        ExplicitHeight = 41
         object Label3: TLabel
           Left = 17
           Top = 8
@@ -449,7 +432,6 @@ object FormPrincipal: TFormPrincipal
       Align = alRight
       Caption = 'Retorno da consulta'
       TabOrder = 1
-      ExplicitHeight = 447
       object MemoRetornoConsultaViaCEP: TMemo
         Left = 2
         Top = 15
@@ -459,10 +441,6 @@ object FormPrincipal: TFormPrincipal
         Lines.Strings = (
           'Memo1')
         TabOrder = 0
-        ExplicitLeft = 6
-        ExplicitTop = 13
-        ExplicitWidth = 181
-        ExplicitHeight = 394
       end
     end
   end

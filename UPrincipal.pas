@@ -152,18 +152,22 @@ begin
         if BEncontrouCepWS then
         begin
           // inseri cep na base
-          if BEncontrouCepBase then
-            DM.FDQueryCep.Edit
-          else
+          if DM.FDConnection.Connected then
           begin
-            DM.FDQueryCep.Insert;
+            if BEncontrouCepBase then
+              DM.FDQueryCep.Edit
+            else
+            begin
+              DM.FDQueryCep.Insert;
+            end;
+
+            case RadioGroupFormatoConsulta.ItemIndex of
+              0: DM.JSONToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+              1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+            end;
+            DM.FDQueryCep.Post;
           end;
 
-          case RadioGroupFormatoConsulta.ItemIndex of
-            0: DM.JSONToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
-            1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
-          end;
-          DM.FDQueryCep.Post;
         end
         else
         begin
