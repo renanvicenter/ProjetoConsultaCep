@@ -1,5 +1,5 @@
 # Arquivos compilados
-*.exe
+#*.exe
 *.dll
 *.bpl
 *.dcu
