@@ -1,0 +1,40 @@
+# Arquivos compilados
+*.exe
+*.dll
+*.bpl
+*.dcu
+*.res
+
+# Arquivos de configuração do Delphi
+__history
+*.identcache
+*.local
+*.dsk
+*.dproj.local
+*.groupproj.local
+*.bdsproj.local
+*.dll.local
+*.exe.local
+*.bpl.local
+*.dcp.local
+*.tvsconfig
+*.tvslocal
+
+# Arquivos temporários do Delphi
+__recovery
+__recoverydata
+*.~*
+
+# Pasta de saída do Delphi
+Win32
+Win64
+
+# Arquivos do Versionamento do Delphi
+*.identcache
+*.dcc32.cfg
+*.local
+
+# Arquivos de backup do Delphi
+*.~*
+*.$$$
+*.BAK
