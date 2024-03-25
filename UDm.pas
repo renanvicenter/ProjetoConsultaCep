@@ -197,7 +197,6 @@ begin
   begin
     // inseri cep na base
     DM.FDQueryCep.Insert;
-    DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
 
     JSONObject := JSONArray.Items[I] as TJSONObject;
     try
@@ -298,7 +297,6 @@ begin
       begin
         // inseri cep na base
         DM.FDQueryCep.Insert;
-        DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
 
         // Adicionar campos ao FDQuery para cada nó filho do nó "endereco"
         for i := 0 to EnderecoNode.ChildNodes.Count - 1 do

@@ -40,7 +40,7 @@ object DM: TDM
     Top = 136
     object CDSPesquisaCEP: TStringField
       FieldName = 'CEP'
-      EditMask = '00\.000\-000;0;_'
+      EditMask = '99\.999\-999;0;_'
       Size = 10
     end
     object CDSPesquisaLOGRADOURO: TStringField

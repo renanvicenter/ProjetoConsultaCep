@@ -187,7 +187,7 @@ begin
         begin
           case RadioGroupFormatoConsulta.ItemIndex of
             0: DM.JSONArrayToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
-            1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
+            1: DM.XMLArrayToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
           end;
         end
         else
