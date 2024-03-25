@@ -13,6 +13,7 @@ uses
   System.RegularExpressions;
 
 type
+  TTipoConsulta = (tcCEP, tcCompleto);
   TDM = class(TDataModule)
     FDConnection: TFDConnection;
     FDTransaction: TFDTransaction;
@@ -35,6 +36,7 @@ type
     CDSPesquisaUF: TStringField;
     procedure DataModuleCreate(Sender: TObject);
     procedure FDQueryCepBeforePost(DataSet: TDataSet);
+    procedure FDQueryCepAfterInsert(DataSet: TDataSet);
   private
     { Private declarations }
     ArrayCampos : TArray<string>;
@@ -49,6 +51,7 @@ type
     function BuscarSeqCodigoCep: Integer;
     function RetiraCaracterEspecial(const Value: string): string;
     function FindInArray(const Value: string; const ArrayToSearch: array of string): Boolean;
+    function BuscarEndereco(TipoConsulta : TTipoConsulta): Boolean;
   end;
 
 var
@@ -63,6 +66,11 @@ implementation
 function TDM.RetiraCaracterEspecial(const Value: string): string;
 begin
   Result := TRegEx.Replace(Value, '[^\w\s]', '', [roIgnoreCase]);
+end;
+
+procedure TDM.FDQueryCepAfterInsert(DataSet: TDataSet);
+begin
+  FDQueryCepCODIGO.AsInteger := BuscarSeqCodigoCep;
 end;
 
 procedure TDM.FDQueryCepBeforePost(DataSet: TDataSet);
@@ -80,9 +88,29 @@ begin
     if ArrayToSearch[I] = Value then
     begin
       Result := True;
-      Exit; // Encerra o loop assim que encontrar o valor
+      Exit;
     end;
   end;
+end;
+
+function TDM.BuscarEndereco(TipoConsulta : TTipoConsulta): Boolean;
+begin
+  FDQueryCep.Close;
+  FDQueryCep.SQL.Clear;
+  FDQueryCep.SQL.Add('SELECT * ');
+  FDQueryCep.SQL.Add('  FROM CEP');
+
+  if TipoConsulta = tcCep then
+    FDQueryCep.SQL.Add('WHERE CEP LIKE ' + QuotedStr('%' + CDSPesquisaCEP.AsString + '%'))
+  else
+  begin
+    FDQueryCep.SQL.Add('WHERE UF = ' + QuotedStr( CDSPesquisaUF.AsString ));
+    FDQueryCep.SQL.Add('  AND UPPER(LOCALIDADE) LIKE UPPER(' + QuotedStr('%' + CDSPesquisaLOCALIDADE.AsString + '%') + ')');
+    FDQueryCep.SQL.Add('  AND UPPER(LOGRADOURO) LIKE UPPER(' + QuotedStr('%' + CDSPesquisaLOGRADOURO.AsString + '%') + ')');
+  end;
+  FDQueryCep.Open;
+
+  result := not FDQueryCep.IsEmpty;
 end;
 
 function TDM.BuscarSeqCodigoCep: Integer;
@@ -95,7 +123,6 @@ begin
 
     Result := FDQueryAux.FieldByName('SEQ_CODIGO_CEP').AsInteger;
   finally
-    // Fechar a consulta
     FDQueryAux.Close;
   end;
 end;
@@ -210,51 +237,39 @@ end;
 
 procedure TDM.XMLToFDQuery(XML: string; DataSet: TFDQuery);
 var
-  XMLDocument: TXMLDocument;
+  XMLDocument: IXMLDocument;
   RootNode, ChildNode: IXMLNode;
-  AttributeIndex: Integer;
-  Field: TField;
   FieldName: string;
+  AttributeIndex : integer;
 begin
   // Criar um novo documento XML a partir da string XML
   XMLDocument := TXMLDocument.Create(nil);
   try
     XMLDocument.LoadFromXML(XML);
 
-    // Obter o nó raiz do documento XML
-    RootNode := XMLDocument.DocumentElement;
-
-    // Iterar sobre os nós filhos do nó raiz
-    ChildNode := RootNode.ChildNodes.First;
-    while Assigned(ChildNode) do
+    // Le os dados contido nó principal
+    with XMLDocument.DocumentElement do
     begin
-      // Verificar se o nó atual é um elemento (não um texto ou outro tipo de nó)
-      if ChildNode.NodeType = ntElement then
-      begin
-        // Adicionar campos ao ClientDataSet para cada atributo do nó filho
-        for AttributeIndex := 0 to ChildNode.AttributeNodes.Count - 1 do
-        begin
-          try
-            FieldName := ChildNode.AttributeNodes[AttributeIndex].NodeName;
-            // Adicionar um campo ao FDQuery
-            if FindInArray(FieldName, ArrayCampos) then
-              DataSet.FieldByName(FieldName).AsString :=
-                ChildNode.AttributeNodes[AttributeIndex].NodeValue;
-          except
-            on e:exception do
-              if (not (ContainsText(e.Message, ': Field ')) and
-                (not (ContainsText(e.Message, 'not found')))) then
-                ShowMessage(e.Message);
-          end;
 
+      for AttributeIndex := 0 to ChildNodes.Count - 1 do
+      begin
+        try
+          FieldName := ChildNodes.Nodes[AttributeIndex].NodeName;
+          // Adicionar um campo ao FDQuery
+          if FindInArray(FieldName, ArrayCampos) then
+            DataSet.FieldByName(FieldName).AsString :=
+              ChildNodes.Nodes[AttributeIndex].NodeValue;
+        except
+          on e:exception do
+            if (not (ContainsText(e.Message, ': Field ')) and
+              (not (ContainsText(e.Message, 'not found')))) then
+              ShowMessage(e.Message);
         end;
       end;
-
-      // Avançar para o próximo nó filho
-      ChildNode := ChildNode.NextSibling;
     end;
+
   finally
-    XMLDocument.Free;
+    XMLDocument := nil; // Liberar a interface do documento XML
   end;
 end;
 

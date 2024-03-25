@@ -63,6 +63,7 @@ object DM: TDM
     Top = 192
   end
   object FDQueryCep: TFDQuery
+    AfterInsert = FDQueryCepAfterInsert
     BeforePost = FDQueryCepBeforePost
     Connection = FDConnection
     SQL.Strings = (

@@ -41,13 +41,20 @@ begin
 end;
 
 function TConsultaCEP.ConsultarCEP(const CEP: string; Formato: TFormatoRetorno; out BEncontrouCep : boolean): string;
+const
+  retornoCepInvalido = '{'#$A'  "erro": true'#$A'}';
 var
   URL: string;
+  res: IHTTPResponse;
 begin
   URL := MontarURL(CEP, Formato);
   try
     BEncontrouCep := True;
-    Result := FHTTPClient.Get(URL).ContentAsString;
+    res := FHTTPClient.Get(URL);
+    if (Res.StatusCode = 200) and (not (res.contentasString = retornoCepInvalido)) then
+      result := res.contentasString
+    else
+      BEncontrouCep := False;
   except
     on E: Exception do
       Result := '{"erro": "' + E.Message + '"}';
@@ -55,13 +62,20 @@ begin
 end;
 
 function TConsultaCEP.ConsultarUFLocalidadeLogra(const UF, Localidade, Logradouro: string; Formato: TFormatoRetorno; out BEncontrouCep : boolean): string;
+const
+  retornoCepInvalido = '{'#$A'  "erro": true'#$A'}';
 var
   URL: string;
+  res: IHTTPResponse;
 begin
   URL := MontarURL(UF + '/' + Localidade + '/' + Logradouro, Formato);
   try
     BEncontrouCep := True;
-    Result := FHTTPClient.Get(URL).ContentAsString;
+    res := FHTTPClient.Get(URL);
+    if (Res.StatusCode = 200) and (not (res.contentasString = retornoCepInvalido)) then
+      result := res.contentasString
+    else
+      BEncontrouCep := False;
   except
     on E: Exception do
       Result := '{"erro": "' + E.Message + '"}';

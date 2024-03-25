@@ -47,6 +47,7 @@ type
     procedure BitBtnConsultarClick(Sender: TObject);
     procedure BitBtnLimparCamposClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    function ValidaConsulta: Boolean;
   private
     { Private declarations }
   public
@@ -63,78 +64,77 @@ uses UConsultaCEP
 
 {$R *.dfm}
 
+function TFormPrincipal.ValidaConsulta: Boolean;
+begin
+  if PageControl.ActivePage = TabSheetConsultaCep then
+  begin
+    if DM.CDSPesquisaCEP.IsNull then
+    begin
+      MessageBox(0, 'Informe o Cep para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBEditCEPPesquisa.SetFocus;
+      result := False;
+      exit;
+    end;
+
+  end
+  else
+  begin
+    if DM.CDSPesquisaUF.IsNull then
+    begin
+      MessageBox(0, 'Informe a UF para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBComboBoxUF.SetFocus;
+      result := False;
+      exit;
+    end;
+    if DM.CDSPesquisaLOCALIDADE.IsNull then
+    begin
+      MessageBox(0, 'Informe a Localidade/Cidade para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBEditLocalidadePesquisa.SetFocus;
+      result := False;
+      exit;
+    end;
+    if DM.CDSPesquisaLOGRADOURO.IsNull then
+    begin
+      MessageBox(0, 'Informe o Logradouro para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBEditLogradouroPesquisa.SetFocus;
+      result := False;
+      exit;
+    end;
+
+    if Length(DM.CDSPesquisaLOCALIDADE.AsString) < 3 then
+    begin
+      MessageBox(0, 'Informe pelo menos 3 caracteres na Localidade/Cidade para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBEditLocalidadePesquisa.SetFocus;
+      result := False;
+      exit;
+    end;
+    if Length(DM.CDSPesquisaLOGRADOURO.AsString) < 3 then
+    begin
+      MessageBox(0, 'Informe pelo menos 3 caracteres no Logradouro para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
+      DBEditLogradouroPesquisa.SetFocus;
+      result := False;
+      exit;
+    end;
+  end;
+  result := True;
+end;
+
 procedure TFormPrincipal.BitBtnConsultarClick(Sender: TObject);
 var
   WsConsultaCEP : TConsultaCEP;
   Localidade, Logradouro : String;
-  BConsultaViaCep, BEncontrouCep : Boolean;
+  BConsultaViaCep, BEncontrouCepBase, BEncontrouCepWS : Boolean;
 begin
   try
-
     WsConsultaCEP := TConsultaCEP.Create;
 
-    if PageControl.ActivePage = TabSheetConsultaCep then
-    begin
-      if DM.CDSPesquisaCEP.IsNull then
-      begin
-        MessageBox(0, 'Informe o Cep para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBEditCEPPesquisa.SetFocus;
-        exit;
-      end;
+    if not ValidaConsulta then
+      exit;
 
-    end
-    else
-    begin
-      if DM.CDSPesquisaUF.IsNull then
-      begin
-        MessageBox(0, 'Informe a UF para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBComboBoxUF.SetFocus;
-        exit;
-      end;
-      if DM.CDSPesquisaLOCALIDADE.IsNull then
-      begin
-        MessageBox(0, 'Informe a Localidade/Cidade para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBEditLocalidadePesquisa.SetFocus;
-        exit;
-      end;
-      if DM.CDSPesquisaLOGRADOURO.IsNull then
-      begin
-        MessageBox(0, 'Informe o Logradouro para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBEditLogradouroPesquisa.SetFocus;
-        exit;
-      end;
+    BConsultaViaCep := True;
+    BEncontrouCepBase := DM.BuscarEndereco(TTipoConsulta(PageControl.ActivePageIndex));
 
-      if Length(DM.CDSPesquisaLOCALIDADE.AsString) < 3 then
-      begin
-        MessageBox(0, 'Informe pelo menos 3 caracteres na Localidade/Cidade para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBEditLocalidadePesquisa.SetFocus;
-        exit;
-      end;
-      if Length(DM.CDSPesquisaLOGRADOURO.AsString) < 3 then
-      begin
-        MessageBox(0, 'Informe pelo menos 3 caracteres no Logradouro para efetuar a consulta.', 'Atenção', MB_ICONWARNING or MB_OK or MB_APPLMODAL);
-        DBEditLogradouroPesquisa.SetFocus;
-        exit;
-      end;
-    end;
-
-    DM.FDQueryCep.Close;
-    DM.FDQueryCep.SQL.Clear;
-    DM.FDQueryCep.SQL.Add('SELECT * ');
-    DM.FDQueryCep.SQL.Add('  FROM CEP');
-
-    if PageControl.ActivePage = TabSheetConsultaCep then
-      DM.FDQueryCep.SQL.Add('WHERE CEP LIKE ' + QuotedStr('%' + DM.CDSPesquisaCEP.AsString + '%'))
-    else
-    begin
-      DM.FDQueryCep.SQL.Add('WHERE UF = ' + QuotedStr( DM.CDSPesquisaUF.AsString ));
-      DM.FDQueryCep.SQL.Add('  AND UPPER(LOCALIDADE) LIKE UPPER(' + QuotedStr('%' + DM.CDSPesquisaLOCALIDADE.AsString + '%') + ')');
-      DM.FDQueryCep.SQL.Add('  AND UPPER(LOGRADOURO) LIKE UPPER(' + QuotedStr('%' + DM.CDSPesquisaLOGRADOURO.AsString + '%') + ')');
-    end;
-    DM.FDQueryCep.Open;
-    // verifica se a consulta retornou algum registro
-    BConsultaViaCep := DM.FDQueryCep.IsEmpty;
-    if not DM.FDQueryCep.IsEmpty then
+    if BEncontrouCepBase then
     begin
       BConsultaViaCep := (MessageBox(0, 'Foram encontrados dados deste endereço na base local. '+
         #13+#10+'Deseja efetuar uma nova consulta atualizando as informações do Endereço existente?',
@@ -147,12 +147,18 @@ begin
       if PageControl.ActivePage = TabSheetConsultaCep then
       begin
         MemoRetornoConsultaViaCEP.Text := WsConsultaCEP.ConsultarCEP(DM.CDSPesquisaCEP.AsString,
-         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCep );
-        if BEncontrouCep then
+         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCepWS );
+
+        if BEncontrouCepWS then
         begin
           // inseri cep na base
-          DM.FDQueryCep.Insert;
-          DM.FDQueryCepCODIGO.AsInteger := DM.BuscarSeqCodigoCep;
+          if BEncontrouCepBase then
+            DM.FDQueryCep.Edit
+          else
+          begin
+            DM.FDQueryCep.Insert;
+          end;
+
           case RadioGroupFormatoConsulta.ItemIndex of
             0: DM.JSONToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
             1: DM.XMLToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
@@ -175,9 +181,9 @@ begin
          DM.CDSPesquisaUF.AsString,
          Localidade,
          Logradouro,
-         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCep );
+         TFormatoRetorno(RadioGroupFormatoConsulta.ItemIndex), BEncontrouCepWS );
 
-        if BEncontrouCep then
+        if BEncontrouCepWS then
         begin
           case RadioGroupFormatoConsulta.ItemIndex of
             0: DM.JSONArrayToFDQuery(MemoRetornoConsultaViaCEP.Text, DM.FDQueryCep);
